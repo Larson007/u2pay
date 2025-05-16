@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/u2pay/static/css/main.f855e6bc.css",
+    "main.js": "/u2pay/static/js/main.bbfa21dd.js",
+    "static/js/453.ac33bccd.chunk.js": "/u2pay/static/js/453.ac33bccd.chunk.js",
+    "index.html": "/u2pay/index.html",
+    "main.f855e6bc.css.map": "/u2pay/static/css/main.f855e6bc.css.map",
+    "main.bbfa21dd.js.map": "/u2pay/static/js/main.bbfa21dd.js.map",
+    "453.ac33bccd.chunk.js.map": "/u2pay/static/js/453.ac33bccd.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f855e6bc.css",
+    "static/js/main.bbfa21dd.js"
+  ]
+}
