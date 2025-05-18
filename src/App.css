@@ -1,38 +1,64 @@
-.App {
-  text-align: center;
-}
+@import url('https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+body {
+  font-family: "Fira Sans", sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  justify-content: center;      /* Ajoute cette ligne */
+  min-height: 100vh;
+  background: linear-gradient(to right bottom, rgb(250, 211, 255), rgb(123, 195, 228));
 }
 
-.App-link {
-  color: #61dafb;
+
+.main-title {
+  text-transform: uppercase;
+  font-size: 4rem;
+  font-weight: normal;
+  font-weight: 600;
+}
+.main-title::first-letter {
+
+  color: tomato;
+  font-size: 6rem;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+
+
+.option-row {
+  display: flex;
+margin: 10px 0;
+font-size: 2rem;
+font-weight: 300;
+text-decoration: underline transparent;
+}
+
+.option-row:hover {
+  text-decoration: underline tomato;
+  cursor :pointer;
+}
+label:hover::first-letter {
+  color: tomato;
+font-weight: 400;
+}
+
+input:hover {
+cursor: pointer;
+}
+label:hover {
+cursor: pointer;
+}
+
+
+input {
+  margin-right: 10px;
+}
+
+.form-row {
+
+}
+
+.prev-btn {
+
 }

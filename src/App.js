@@ -30,16 +30,27 @@ function App() {
   const [history, setHistory] = useState(["start"]); // Historique des étapes
   const [currentKey, setCurrentKey] = useState("start");
   const [showResult, setShowResult] = useState(false);
+  const [checkboxResult, setCheckboxResult] = useState(null);
+  const [checkboxValidated, setCheckboxValidated] = useState(false);
 
   const currentQuestion = questions[currentKey];
 
-  // Pour revenir en arrière
+  // Pour revenir en arrière et réinitialiser la sélection de l'écran précédent
   const prevStep = () => {
     if (history.length > 1) {
       const newHistory = [...history];
+      const prevKey = newHistory[newHistory.length - 2]; // clé de l'écran précédent
       newHistory.pop();
       setHistory(newHistory);
       setCurrentKey(newHistory[newHistory.length - 1]);
+      setCheckboxResult(null);
+      setCheckboxValidated(false);
+      // Réinitialise la sélection de l'écran précédent
+      if (questions[prevKey]?.type === "checkbox") {
+        setValue(questions[prevKey].name, []);
+      } else if (questions[prevKey]?.type === "radio") {
+        setValue(questions[prevKey].name, "");
+      }
     }
   };
 
@@ -51,6 +62,8 @@ function App() {
     if (option && option.next) {
       setHistory([...history, option.next]);
       setCurrentKey(option.next);
+      setCheckboxResult(null);
+      setCheckboxValidated(false);
     }
   };
 
@@ -86,70 +99,90 @@ function App() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div>
-        <label>{currentQuestion.label}</label>
-        {Array.isArray(currentQuestion.options) && currentQuestion.options.length > 0 ? (
-          currentQuestion.type === "checkbox" ? (
-            <>
-              {currentQuestion.options.map((option) => (
-                <div key={option.value}>
-                  <input
-                    type="checkbox"
-                    value={option.value}
-                    {...register(currentQuestion.name, { required: true })}
-                    checked={Array.isArray(selectedValue) && selectedValue.includes(option.value)}
-                    onChange={(e) => {
-                      const oldValues = Array.isArray(selectedValue) ? selectedValue : [];
-                      if (e.target.checked) {
-                        setValue(currentQuestion.name, [...oldValues, option.value]);
-                      } else {
-                        setValue(
-                          currentQuestion.name,
-                          oldValues.filter((v) => v !== option.value)
-                        );
+      <div className="form-row">
+        <div className="form-group">
+          <h1 className="main-title">{currentQuestion.label}</h1>
+          {Array.isArray(currentQuestion.options) && currentQuestion.options.length > 0 ? (
+            <div className="options-group">
+              {/* Affiche les inputs seulement si pas validé */}
+              {currentQuestion.type === "checkbox" && !checkboxValidated && (
+                <>
+                  {currentQuestion.options.map((option) => (
+                    <div key={option.value} className="option-row">
+                      <input
+                        type="checkbox"
+                        value={option.value}
+                        {...register(currentQuestion.name, { required: true })}
+                        checked={Array.isArray(selectedValue) && selectedValue.includes(option.value)}
+                        onChange={(e) => {
+                          const oldValues = Array.isArray(selectedValue) ? selectedValue : [];
+                          if (e.target.checked) {
+                            setValue(currentQuestion.name, [...oldValues, option.value]);
+                          } else {
+                            setValue(
+                              currentQuestion.name,
+                              oldValues.filter((v) => v !== option.value)
+                            );
+                          }
+                          setCheckboxResult(null);
+                          setCheckboxValidated(false); // Permet de revalider après retour ou modification
+                        }}
+                        id={`${currentQuestion.name}_${option.value}`}
+                      />
+                      <label htmlFor={`${currentQuestion.name}_${option.value}`}>{option.label}</label>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    style={{ marginTop: "1em" }}
+                    onClick={() => {
+                      if (typeof currentQuestion.result === "function") {
+                        setCheckboxResult(currentQuestion.result(getValues()));
+                        setCheckboxValidated(true);
                       }
                     }}
-                  />
-                  {option.label}
+                  >
+                    Valider
+                  </button>
+                </>
+              )}
+              {/* Affiche le résultat si validé */}
+              {currentQuestion.type === "checkbox" && checkboxValidated && checkboxResult && (
+                <div style={{ marginTop: "1em", color: "#2c3e50", fontWeight: "bold" }}>
+                  {checkboxResult}
                 </div>
-              ))}
-              <button type="submit" style={{ marginTop: "1em" }}>
-                Valider
-              </button>
-            </>
+              )}
+              {/* Pour les radios */}
+              {currentQuestion.type !== "checkbox" &&
+                currentQuestion.options.map((option) => (
+                  <div key={option.value} className="option-row">
+                    <input
+                      type="radio"
+                      value={option.value}
+                      {...register(currentQuestion.name, { required: true })}
+                      checked={selectedValue === option.value}
+                      onChange={() => {
+                        setValue(currentQuestion.name, option.value);
+                        if (option.next === "fin") {
+                          setShowResult(true);
+                        } else {
+                          nextStep(option.value);
+                        }
+                      }}
+                      id={`${currentQuestion.name}_${option.value}`}
+                    />
+                    <label htmlFor={`${currentQuestion.name}_${option.value}`}>{option.label}</label>
+                  </div>
+                ))}
+            </div>
           ) : (
-            currentQuestion.options.map((option) => (
-              <div key={option.value}>
-                <input
-                  type="radio"
-                  value={option.value}
-                  {...register(currentQuestion.name, { required: true })}
-                  checked={selectedValue === option.value}
-                  onChange={() => {
-                    setValue(currentQuestion.name, option.value);
-                    if (option.next === "fin") {
-                      setShowResult(true);
-                    } else {
-                      nextStep(option.value);
-                    }
-                  }}
-                />
-                {option.label}
-              </div>
-            ))
-          )
-        ) : (
-          <div style={{ color: "red" }}>
-            Aucune option disponible pour cette question.
-          </div>
-        )}
+            <div style={{ color: "red" }}>
+              Aucune option disponible pour cette question.
+            </div>
+          )}
+        </div>
       </div>
       <div style={{ marginTop: "1em" }}>
-        {history.length > 1 && (
-          <button type="button" onClick={prevStep}>
-            Précédent
-          </button>
-        )}
         {/* Affiche "Valider" uniquement sur la dernière question radio */}
         {currentQuestion.type !== "checkbox" &&
           currentQuestion.options?.some((opt) => opt.next === "fin") &&
@@ -160,6 +193,11 @@ function App() {
             </button>
           )}
       </div>
+      {history.length > 1 && (
+        <button type="button" onClick={prevStep} className="prev-btn">
+          Précédent
+        </button>
+      )}
     </form>
   );
 }
